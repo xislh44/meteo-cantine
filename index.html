@@ -1,1 +1,547 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>Le tableau du jour</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      background: #edf2f7;
+      color: #172b4d;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: table;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    header h1 {
+      display: table-cell;
+      margin: 0;
+      font-size: 30px;
+      vertical-align: middle;
+    }
+
+    #today {
+      display: table-cell;
+      color: #52657f;
+      font-size: 18px;
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    .card {
+      margin-bottom: 16px;
+      padding: 18px;
+      overflow: hidden;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(23, 43, 77, 0.08);
+    }
+
+    .weather-card {
+      padding: 16px 18px 10px;
+      background: #e6e8eb;
+      color: #263238;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    .subheading {
+      margin: -6px 0 14px;
+      color: #626b73;
+      font-size: 15px;
+    }
+
+    .notice {
+      margin: 10px 0 0;
+      color: #52657f;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .menu-days {
+      display: flex;
+      align-items: stretch;
+      margin: 0 -6px;
+    }
+
+    .menu-day {
+      flex: 0 0 20%;
+      width: 20%;
+      min-width: 0;
+      margin: 0;
+      padding: 12px 12px 16px;
+      border-left: 1px solid #e4eaf2;
+      overflow-wrap: break-word;
+    }
+
+    .menu-day:first-child {
+      border-left: 0;
+    }
+
+    .menu-day h3 {
+      margin: 0 0 8px;
+      color: #174ea6;
+      font-size: 16px;
+    }
+
+    .menu-day ul {
+      margin: 0;
+      padding-left: 17px;
+      color: #34445b;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .menu-day li {
+      margin: 0 0 7px;
+    }
+
+    .schedule {
+      display: flex;
+      margin: 12px -6px 0;
+      padding-top: 12px;
+      border-top: 1px solid #e4eaf2;
+    }
+
+    .schedule-item {
+      flex: 1;
+      margin: 0 6px;
+      padding: 10px 12px;
+      background: #f3f6fa;
+      border-radius: 8px;
+      color: #34445b;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .schedule-item strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #174ea6;
+    }
+
+    .link {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #e8f1ff;
+      border-radius: 8px;
+      color: #174ea6;
+      font-size: 16px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .summary {
+      min-height: 64px;
+      margin-bottom: 12px;
+      color: #263238;
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .hours {
+      display: flex;
+      overflow-x: auto;
+      padding: 2px 0 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .hour {
+      flex: 0 0 68px;
+      margin-right: 7px;
+      padding: 10px 5px;
+      background: #fff;
+      border-radius: 9px;
+      text-align: center;
+    }
+
+    .hour-time {
+      color: #626b73;
+      font-size: 15px;
+    }
+
+    .hour-icon {
+      margin: 7px 0;
+      font-size: 25px;
+      filter: grayscale(100%);
+    }
+
+    .hour-temp {
+      font-size: 19px;
+      font-weight: bold;
+    }
+
+    .hour-rain {
+      margin-top: 5px;
+      color: #555f66;
+      font-size: 13px;
+    }
+
+    .status {
+      min-height: 24px;
+      color: #626b73;
+      font-size: 14px;
+    }
+
+    .status.error {
+      color: #8a3028;
+    }
+
+    .tides {
+      margin: 0 0 12px;
+      padding: 12px 16px;
+      background: #fff;
+      border-radius: 10px;
+      color: #52657f;
+      font-size: 16px;
+    }
+
+    .tides a {
+      color: #174ea6;
+      font-weight: bold;
+    }
+
+    footer {
+      padding: 2px 4px;
+      color: #65758b;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 12px;
+      }
+
+      .page {
+        min-width: 700px;
+      }
+
+      header h1 {
+        font-size: 24px;
+      }
+
+      #today {
+        font-size: 15px;
+      }
+
+      .menu-day {
+        padding: 10px 8px 14px;
+      }
+
+      .menu-day h3 {
+        font-size: 14px;
+      }
+
+      .menu-day ul {
+        padding-left: 14px;
+        font-size: 12px;
+      }
+
+      .schedule-item {
+        padding: 9px 8px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Le tableau du jour</h1>
+      <div id="today"></div>
+    </header>
+
+    <section class="card weather-card">
+      <h2>☀ Météo à Nantes</h2>
+      <p class="subheading">Prévisions horaires, de 8 h à 20 h</p>
+      <div id="weather-summary" class="summary">Chargement de la météo…</div>
+      <div id="hours" class="hours"></div>
+      <div id="weather-status" class="status" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <h2>🍽 Menus de la cantine</h2>
+      <p class="subheading">Menu standard · commune de Nantes · 5 prochains jours publiés</p>
+      <div id="menus" class="menu-days notice">Chargement des menus…</div>
+      <div id="menus-status" class="status" aria-live="polite"></div>
+      <a class="link" href="https://data.nantesmetropole.fr/explore/dataset/244400404_menus-cantines-scolaires-nantes-metropole/table/?disjunctive.type_menu&amp;disjunctive.commune&amp;sort=commune" target="_blank">
+        Source Nantes Métropole
+      </a>
+      <div class="schedule" aria-label="Emploi du temps">
+        <div class="schedule-item">
+          <strong>Lundi</strong>
+          Piscine Ulysse &amp; Sport Marius
+        </div>
+        <div class="schedule-item">
+          <strong>Jeudi</strong>
+          Piscine Ulysse
+        </div>
+      </div>
+    </section>
+
+    <div class="tides">
+      🌊 Marées à Saint-Nazaire :
+      <a href="https://maree.info/117" target="_blank">horaires, coefficients et hauteurs du jour</a>
+    </div>
+
+    <footer>Actualisation météo automatique · Source : Open-Meteo</footer>
+  </div>
+
+  <script>
+    (function () {
+      var weekdays = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+      var months = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+      function todayString() {
+        var date = new Date();
+        return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
+      }
+
+      function pad(value) {
+        return value < 10 ? "0" + value : String(value);
+      }
+
+      function setDate() {
+        var date = new Date();
+        document.getElementById("today").innerHTML =
+          weekdays[date.getDay()] + " " + date.getDate() + " " + months[date.getMonth()];
+      }
+
+      function weatherForCode(code) {
+        if (code === 0) return { icon: "☀️", label: "Soleil" };
+        if (code === 1) return { icon: "🌤", label: "Peu nuageux" };
+        if (code === 2) return { icon: "⛅", label: "Éclaircies" };
+        if (code === 3) return { icon: "☁️", label: "Nuageux" };
+        if (code === 45 || code === 48) return { icon: "🌫", label: "Brouillard" };
+        if (code >= 51 && code <= 57) return { icon: "🌦", label: "Bruine" };
+        if (code >= 61 && code <= 67) return { icon: "🌧", label: "Pluie" };
+        if (code >= 71 && code <= 77) return { icon: "❄️", label: "Neige" };
+        if (code >= 80 && code <= 82) return { icon: "🌧", label: "Averses" };
+        if (code === 85 || code === 86) return { icon: "🌨", label: "Averses de neige" };
+        if (code >= 95) return { icon: "⛈", label: "Orage" };
+        return { icon: "☁️", label: "Variable" };
+      }
+
+      function showWeather(data) {
+        var hours = document.getElementById("hours");
+        var summary = document.getElementById("weather-summary");
+        var status = document.getElementById("weather-status");
+        var today = todayString();
+        var dayRain = 0;
+        var i;
+        var foundHours = 0;
+
+        if (!data || !data.hourly || !data.daily || !data.hourly.time) {
+          throw new Error("Réponse météo incomplète.");
+        }
+
+        for (i = 0; i < data.daily.time.length; i++) {
+          if (data.daily.time[i] === today) {
+            dayRain = data.daily.precipitation_sum[i];
+            break;
+          }
+        }
+
+        summary.innerHTML = "Pluie prévue aujourd'hui : <strong>" +
+          (dayRain === null || typeof dayRain === "undefined" ? "indisponible" : Number(dayRain).toLocaleString("fr-FR") + " mm") +
+          "</strong>.";
+        hours.innerHTML = "";
+
+        for (i = 0; i < data.hourly.time.length; i++) {
+          var time = data.hourly.time[i];
+          var hour = parseInt(time.substring(11, 13), 10);
+          if (time.substring(0, 10) !== today || hour < 8 || hour > 20) {
+            continue;
+          }
+
+          var weather = weatherForCode(Number(data.hourly.weather_code[i]));
+          var card = document.createElement("div");
+          card.className = "hour";
+
+          var timeLabel = document.createElement("div");
+          timeLabel.className = "hour-time";
+          timeLabel.appendChild(document.createTextNode(pad(hour) + " h"));
+
+          var icon = document.createElement("div");
+          icon.className = "hour-icon";
+          icon.setAttribute("title", weather.label);
+          icon.appendChild(document.createTextNode(weather.icon));
+
+          var temperature = document.createElement("div");
+          temperature.className = "hour-temp";
+          temperature.appendChild(document.createTextNode(Math.round(data.hourly.temperature_2m[i]) + "°"));
+
+          var rain = document.createElement("div");
+          rain.className = "hour-rain";
+          rain.appendChild(document.createTextNode(
+            data.hourly.precipitation_probability[i] + "% pluie"
+          ));
+
+          card.appendChild(timeLabel);
+          card.appendChild(icon);
+          card.appendChild(temperature);
+          card.appendChild(rain);
+          hours.appendChild(card);
+          foundHours++;
+        }
+
+        if (!foundHours) {
+          throw new Error("Aucune prévision disponible pour aujourd'hui.");
+        }
+
+        status.className = "status";
+        status.innerHTML = "Prévisions actualisées à " + new Date().toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit"
+        }) + ".";
+      }
+
+      function showError(message) {
+        var status = document.getElementById("weather-status");
+        status.className = "status error";
+        status.innerHTML = message;
+        document.getElementById("weather-summary").innerHTML =
+          "La météo n'a pas pu être chargée. Vérifiez la connexion Internet.";
+      }
+
+      function formatMenuDate(value) {
+        var parts = value.split("-");
+        var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        return weekdays[date.getDay()] + " " + date.getDate() + " " + months[date.getMonth()];
+      }
+
+      function showMenus(data) {
+        var container = document.getElementById("menus");
+        var status = document.getElementById("menus-status");
+        var results = data && data.results ? data.results : [];
+        var i;
+
+        container.innerHTML = "";
+        if (!results.length) {
+          container.appendChild(document.createTextNode("Aucun menu standard à venir n'est publié."));
+          return;
+        }
+
+        for (i = 0; i < results.length; i++) {
+          var entry = results[i];
+          var day = document.createElement("div");
+          day.className = "menu-day";
+
+          var heading = document.createElement("h3");
+          heading.appendChild(document.createTextNode(formatMenuDate(entry.date)));
+          day.appendChild(heading);
+
+          var list = document.createElement("ul");
+          var items = String(entry.repas || "").replace(/\u00a0/g, " ").split(/\s{2,}/);
+          var j;
+          for (j = 0; j < items.length; j++) {
+            var item = items[j].replace(/^\s+|\s+$/g, "");
+            if (!item) continue;
+            if (item.toLowerCase() === "bio" && list.lastChild) {
+              list.lastChild.appendChild(document.createTextNode(" (bio)"));
+              continue;
+            }
+            var listItem = document.createElement("li");
+            listItem.appendChild(document.createTextNode(item));
+            list.appendChild(listItem);
+          }
+          day.appendChild(list);
+          container.appendChild(day);
+        }
+
+        status.className = "status";
+        status.innerHTML = "Menus standards publiés pour Nantes (non filtrés par école).";
+      }
+
+      function loadMenus() {
+        var request = new XMLHttpRequest();
+        var where = "commune='Nantes' AND type_menu='Menu standard' AND date>='" + todayString() + "'";
+        var url = "https://data.nantesmetropole.fr/api/explore/v2.1/catalog/datasets/" +
+          "244400404_menus-cantines-scolaires-nantes-metropole/records" +
+          "?limit=5&order_by=date%20ASC&where=" + encodeURIComponent(where);
+
+        request.open("GET", url, true);
+        request.onreadystatechange = function () {
+          if (request.readyState !== 4) return;
+          if (request.status < 200 || request.status >= 300) {
+            var status = document.getElementById("menus-status");
+            status.className = "status error";
+            status.innerHTML = "Erreur de chargement des menus (HTTP " + request.status + ").";
+            document.getElementById("menus").innerHTML =
+              "Vérifiez la connexion Internet ou consultez la source officielle.";
+            return;
+          }
+          try {
+            showMenus(JSON.parse(request.responseText));
+          } catch (error) {
+            var errorStatus = document.getElementById("menus-status");
+            errorStatus.className = "status error";
+            errorStatus.innerHTML = "Les données des menus reçues ne sont pas exploitables.";
+          }
+        };
+        request.onerror = function () {
+          var status = document.getElementById("menus-status");
+          status.className = "status error";
+          status.innerHTML = "Erreur réseau lors du chargement des menus.";
+        };
+        request.send();
+      }
+
+      function loadWeather() {
+        var request = new XMLHttpRequest();
+        var url = "https://api.open-meteo.com/v1/forecast" +
+          "?latitude=47.2184&longitude=-1.5536" +
+          "&hourly=temperature_2m,precipitation_probability,weather_code" +
+          "&daily=precipitation_sum&timezone=Europe%2FParis&forecast_days=1";
+
+        request.open("GET", url, true);
+        request.onreadystatechange = function () {
+          if (request.readyState !== 4) return;
+          if (request.status < 200 || request.status >= 300) {
+            showError("Erreur météo (HTTP " + request.status + ").");
+            return;
+          }
+          try {
+            showWeather(JSON.parse(request.responseText));
+          } catch (error) {
+            showError("Les données météo reçues ne sont pas exploitables.");
+          }
+        };
+        request.onerror = function () {
+          showError("Erreur réseau lors du chargement de la météo.");
+        };
+        request.send();
+      }
+
+      setDate();
+      loadMenus();
+      loadWeather();
+      window.setInterval(loadMenus, 6 * 60 * 60 * 1000);
+      window.setInterval(loadWeather, 30 * 60 * 1000);
+    }());
+  </script>
+</body>
+</html>
 
